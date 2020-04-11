@@ -1,4 +1,4 @@
-from .entry import Entry, InvalidEntry, InvalidFstabLine
+from .entry import Entry, InvalidEntry
 from collections import defaultdict
 
 
@@ -69,6 +69,18 @@ class Fstab:
 
         return self
 
+    def write_string(self):
+        """
+        Formats entries into a string.
+
+        :return: Formatted fstab file.
+        :rtype: str
+
+        :raises InvalidEntry:
+            A string cannot be generated because one of the entries is invalid.
+        """
+        return "\n".join(str(entry) for entry in self.entries)
+
     def read_file(self, handle, only_valid=False):
         """
         Parses entries from a file
@@ -103,8 +115,11 @@ class Fstab:
 
         return self
 
+    def __bool__(self):
+        return len(self.entries) > 0
+
     def __str__(self):
-        return "\n".join(str(entry) for entry in self.entries)
+        return self.write_string()
 
     def __repr__(self):
         res = "<Fstab [{} entries]".format(len(self.entries))
