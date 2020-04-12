@@ -15,6 +15,7 @@ Contributing
 * Send any issues to GitHub's issue tracker.
 * Before sending a pull request, format it with `Black`_ (-Sl79)
 * Any changes must be updated to the documentation
+* All pull requests must be tested with tox (if you are using pyenv, add the installed versions for py35-py38 and pypy3 to .python-version at the root of this repository before running tox)
 
 
 .. _`Black`: https://github.com/psf/black
