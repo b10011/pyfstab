@@ -1,5 +1,5 @@
 import pytest
-from context import Fstab, InvalidFstabLine
+from context import Fstab, Entry, InvalidFstabLine, InvalidEntry
 import io
 
 normal_spaces = """
@@ -188,3 +188,39 @@ def test_many_devices_single_dir_filehandle():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+
+
+def test_fstab_bool():
+    fstab = Fstab()
+    assert not fstab
+
+    fstab.read_string(comments)
+    assert fstab
+
+
+def test_fstab_repr():
+    fstab = Fstab()
+    assert repr(fstab) == "<Fstab [0 entries]>"
+
+    fstab.read_string(comments)
+    assert repr(fstab) == (
+        "<Fstab [2 entries]\n"
+        "  UUID=1234567890 / ext4 rw,relatime 0 1\n"
+        "  UUID=1231231231 none swap defaults,pri=-2 0 0\n"
+        ">"
+    )
+
+
+def test_invalid_entry():
+    entry = Entry()
+    with pytest.raises(InvalidEntry):
+        entry.write_string()
+
+    with pytest.raises(InvalidFstabLine):
+        entry.read_string("Hello world")
+
+    assert repr(entry) == "<Entry Invalid>"
+
+    entry.read_string("UUID=1234567890 / ext4 rw,relatime 0 1")
+
+    assert repr(entry) == "<Entry UUID=1234567890 / ext4 rw,relatime 0 1>"
