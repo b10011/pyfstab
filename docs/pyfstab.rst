@@ -1,8 +1,13 @@
 pyfstab package
 ===============
 
-Submodules
-----------
+Module contents
+---------------
+
+.. automodule:: pyfstab
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 pyfstab.fstab module
 --------------------
@@ -16,15 +21,6 @@ pyfstab.entry module
 --------------------
 
 .. automodule:: pyfstab.entry
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: pyfstab
    :members:
    :undoc-members:
    :show-inheritance:

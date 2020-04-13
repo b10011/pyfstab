@@ -5,3 +5,4 @@ pyfstab
    :maxdepth: 4
 
    pyfstab
+   examples
