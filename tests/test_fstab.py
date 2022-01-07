@@ -46,6 +46,8 @@ def test_normal_spaces():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
     assert fstab.entries[0].dir == "/"
     assert fstab.entries[0].type == "ext4"
     assert fstab.entries[0].options == "rw,relatime"
@@ -61,6 +63,8 @@ def test_normal_tabs():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
     assert fstab.entries[0].dir == "/"
     assert fstab.entries[0].type == "ext4"
     assert fstab.entries[0].options == "rw,relatime"
@@ -82,6 +86,8 @@ def test_comments():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
     assert fstab.entries[0].dir == "/"
     assert fstab.entries[0].type == "ext4"
     assert fstab.entries[0].options == "rw,relatime"
@@ -104,6 +110,8 @@ def test_file_handle_read():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
     assert fstab.entries[0].dir == "/"
     assert fstab.entries[0].type == "ext4"
     assert fstab.entries[0].options == "rw,relatime"
@@ -121,6 +129,8 @@ def test_file_handle_write():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
     assert fstab.entries[0].dir == "/"
     assert fstab.entries[0].type == "ext4"
     assert fstab.entries[0].options == "rw,relatime"
@@ -144,6 +154,8 @@ def test_many_devices_single_dir_only_valid():
     assert len(fstab.entries) == 1
 
     assert fstab.entries[0].device == "UUID=1231231231"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1231231231"
 
 
 def test_many_devices_single_dir():
@@ -152,6 +164,8 @@ def test_many_devices_single_dir():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
 
 
 def test_single_device_many_dirs_only_valid():
@@ -160,6 +174,8 @@ def test_single_device_many_dirs_only_valid():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
 
 
 def test_single_device_many_dirs():
@@ -168,6 +184,8 @@ def test_single_device_many_dirs():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
 
 
 def test_many_devices_single_dir_filehandle_only_valid():
@@ -178,6 +196,8 @@ def test_many_devices_single_dir_filehandle_only_valid():
     assert len(fstab.entries) == 1
 
     assert fstab.entries[0].device == "UUID=1231231231"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1231231231"
 
 
 def test_many_devices_single_dir_filehandle():
@@ -188,6 +208,8 @@ def test_many_devices_single_dir_filehandle():
     assert len(fstab.entries) == 2
 
     assert fstab.entries[0].device == "UUID=1234567890"
+    assert fstab.entries[0].device_tag_type == "UUID"
+    assert fstab.entries[0].device_tag_value == "1234567890"
 
 
 def test_fstab_bool():
@@ -224,3 +246,70 @@ def test_invalid_entry():
     entry.read_string("UUID=1234567890 / ext4 rw,relatime 0 1")
 
     assert repr(entry) == "<Entry UUID=1234567890 / ext4 rw,relatime 0 1>"
+
+    assert entry.device_tag_type == "UUID"
+    assert entry.device_tag_value == "1234567890"
+
+
+def test_entry_with_str_device():
+    entry = Entry("UUID=1234567890", "/", "ext4", "rw,relatime", "0", "1")
+
+    assert entry.device == "UUID=1234567890"
+    assert entry.device_tag_type == "UUID"
+    assert entry.device_tag_value == "1234567890"
+
+def test_entry_with_tuple_device():
+    entry = Entry(("UUID", "1234567890"), "/", "ext4", "rw,relatime", "0", "1")
+
+    assert entry.device == "UUID=1234567890"
+    assert entry.device_tag_type == "UUID"
+    assert entry.device_tag_value == "1234567890"
+
+def test_entry_device_changes():
+    entry = Entry(("UUID", "1234567890"), "/", "ext4", "rw,relatime", "0", "1")
+
+    assert entry.device == "UUID=1234567890"
+    assert entry.device_tag_type == "UUID"
+    assert entry.device_tag_value == "1234567890"
+
+    entry.device = "ID=HELLOWORLD"
+
+    assert entry.device == "ID=HELLOWORLD"
+    assert entry.device_tag_type == "ID"
+    assert entry.device_tag_value == "HELLOWORLD"
+
+    entry.device_tag_type = "LABEL"
+
+    assert entry.device == "LABEL=HELLOWORLD"
+    assert entry.device_tag_type == "LABEL"
+    assert entry.device_tag_value == "HELLOWORLD"
+
+    entry.device_tag_value = "1234"
+
+    assert entry.device == "LABEL=1234"
+    assert entry.device_tag_type == "LABEL"
+    assert entry.device_tag_value == "1234"
+
+    entry.device = ("PARTLABEL", "4321")
+
+    assert entry.device == "PARTLABEL=4321"
+    assert entry.device_tag_type == "PARTLABEL"
+    assert entry.device_tag_value == "4321"
+
+    entry.device = ("PARTUUID", "4321")
+
+    assert entry.device == "PARTUUID=4321"
+    assert entry.device_tag_type == "PARTUUID"
+    assert entry.device_tag_value == "4321"
+
+    entry.device = "/dev/sda1"
+
+    assert entry.device == "/dev/sda1"
+    assert entry.device_tag_type is None
+    assert entry.device_tag_value == "/dev/sda1"
+
+    entry.device = None
+
+    assert entry.device is None
+    assert entry.device_tag_type is None
+    assert entry.device_tag_value is None

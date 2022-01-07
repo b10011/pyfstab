@@ -15,6 +15,22 @@ class InvalidFstabLine(Exception):
     """
 
 
+_valid_tag_types = {"LABEL", "UUID", "PARTLABEL", "PARTUUID", "ID"}
+
+
+def _split_device_string(string):
+    try:
+        tag_type, tag_value = string.split("=", 1)
+
+        if tag_type in _valid_tag_types:
+            return (tag_type, tag_value)
+        else:
+            return (None, string)
+
+    except ValueError:
+        return (None, string)
+
+
 class Entry:
     """
     Handles parsing and formatting fstab line entries.
@@ -58,8 +74,11 @@ class Entry:
         _fsck=None,
     ):
         """
-        :param _device: Fstab device (1st parameter in the fstab entry)
-        :type _device: str
+        :param _device:
+            Fstab device (1st parameter in the fstab entry).
+            Tuple/list in form of (type, value) is also accepted
+            (e.g. ("UUID", "1234567890"))
+        :type _device: Union[str, tuple, list]
 
         :param _dir: Fstab device (2nd parameter in the fstab entry)
         :type _dir: str
@@ -76,6 +95,11 @@ class Entry:
         :param _fsck: Fstab device (6th parameter in the fstab entry)
         :type _fsck: int
         """
+        # Use setters and getters for these
+        self._device = None
+        self._device_tag_type = None
+        self._device_tag_value = None
+
         self.device = _device
         self.dir = _dir
         self.type = _type
@@ -84,12 +108,74 @@ class Entry:
         self.fsck = _fsck
 
         self.valid = True
-        self.valid &= self.device is not None
+        self.valid &= self._device is not None
+        self.valid &= isinstance(self._device, (str, tuple, list))
         self.valid &= self.dir is not None
         self.valid &= self.type is not None
         self.valid &= self.options is not None
         self.valid &= self.dump is not None
         self.valid &= self.fsck is not None
+
+    @property
+    def device(self):
+        """
+        :return: device part string (e.g. "UUID=1234")
+        """
+        return self._device
+
+    @device.setter
+    def device(self, value):
+        """
+        :param value: new device string or tuple/list (e.g. "ID=123"
+            or ("ID", "123"))
+        :type value: Union[str, tuple, list]
+        """
+        if isinstance(value, str):
+            (
+                self._device_tag_type,
+                self._device_tag_value,
+            ) = _split_device_string(value)
+            self._device = value
+        elif isinstance(value, (tuple, list)):
+            self._device_tag_type, self._device_tag_value = value
+            self._device = "{}={}".format(
+                self._device_tag_type, self.device_tag_value
+            )
+        else:
+            # For unknown values
+            self._device = value
+            self._device_tag_type = None
+            self._device_tag_value = None
+
+    @property
+    def device_tag_type(self):
+        """
+        :return: device tag's type part string (e.g. "UUID" in "UUID=1234")
+        """
+        return self._device_tag_type
+
+    @device_tag_type.setter
+    def device_tag_type(self, value):
+        """
+        :param value: new device tag's type part (e.g. "UUID")
+        :type value: str
+        """
+        self.device = (value, self.device_tag_value)
+
+    @property
+    def device_tag_value(self):
+        """
+        :return: device tag's value part string (e.g. "1234" in "UUID=1234")
+        """
+        return self._device_tag_value
+
+    @device_tag_value.setter
+    def device_tag_value(self, value):
+        """
+        :param value: new device tag's value part (e.g. "123" in "ID=123")
+        :type value: str
+        """
+        self.device = (self.device_tag_type, value)
 
     def read_string(self, line):
         """

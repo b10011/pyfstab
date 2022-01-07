@@ -41,6 +41,26 @@ Examples
    for entry in fstab.entries_by_device["UUID=123456"]:
        print(entry.options)
 
+   # Print Tag value for all entries with device defined as
+   # UUID=something or ID=something
+   for entry in fstab.entries:
+       if entry.device_tag_type in {"UUID", "ID"}:
+           print(entry.device_tag_value)
+
+   # Change device tag type from UUID= to ID=
+   entry.device_tag_type = "ID"
+
+   # Change device tag value from "123456" to "4321"
+   # (Changes from "ID=123456" to "ID=4321")
+   entry.device_tag_value = "4321"
+
+   # Print new device string (it's "ID=4321" now)
+   print(entry.device)
+
+   # Set both tag type and value at the same time in both valid ways
+   entry.device = ("UUID", "11223344")
+   entry.device = "UUID=11223344"
+
    # Add an entry (does not update entries_by_device/type/dir)
    # but it will be printed when formatting the fstab object
    fstab.entries.append(
